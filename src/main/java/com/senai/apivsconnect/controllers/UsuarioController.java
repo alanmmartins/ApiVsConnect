@@ -4,6 +4,9 @@ import com.senai.apivsconnect.dtos.UsuarioDto;
 import com.senai.apivsconnect.models.UsuarioModel;
 import com.senai.apivsconnect.repositories.UsuarioRepository;
 import com.senai.apivsconnect.services.FileUploadService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import jakarta.validation.Valid;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -63,6 +66,11 @@ public class UsuarioController {
 
 
     @PostMapping(consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    @Operation(summary = "Método para cadastrar um Usuário", method = "POST")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "201", description = "Cadastro foi efetuado com sucesso"),
+            @ApiResponse(responseCode = "400", description = "Paramatros inválidos")
+    })
     public ResponseEntity<Object> criarUsuario(@ModelAttribute @Valid UsuarioDto usuarioDto){
         if (usuarioRepository.findByEmail(usuarioDto.email()) != null){
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Email já cadastrado");
@@ -80,7 +88,8 @@ public class UsuarioController {
         }
 
         novoUsuario.setUrl_img(urlImagem);
-        //cripto
+
+        //Criptografa senha
         String senhaCript = new BCryptPasswordEncoder().encode(usuarioDto.senha());
         novoUsuario.setSenha(senhaCript);
 
@@ -106,6 +115,7 @@ public class UsuarioController {
 
 
     @PutMapping(value = "/{idUsuario}", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+
     public ResponseEntity<Object> editarUsuario(@PathVariable(value = "idUsuario") UUID id, @ModelAttribute @Valid UsuarioDto usuarioDto){
 
         Optional<UsuarioModel> usuarioBuscado = usuarioRepository.findById(id);
@@ -141,11 +151,3 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.OK).body("Usuario deletado com sucesso!");
     }
 }
-
-
-
-
-
-
-
-
